@@ -1,70 +1,83 @@
-import matplotlib.pyplot as plt
-import time
-import numpy as np
 import math
-import random
+import time
 
-# Define the unimodal function (a simple parabola)
 def unimodal_function(x):
-    """A complex unimodal function with noise to test the algorithms."""
-    # Function: sin(x) + (x-5000)^2 / 10000
-    # This creates a curve with a global minimum around x = 5000, with a lot of fluctuations
-    noise = random.uniform(-0.01, 0.01)  # Adding small random noise
-    return math.sin(x) + ((x - 5000)**2) / 10000 + noise
+    return -1 * (x - 3)**2 + 7  # Maximum at x = 3
 
-# Ternary Search to find the minimum of a unimodal function
-def ternary_search_minimize(f, left, right, epsilon=1e-5):
-    while right - left > epsilon:
+# Ternary Search implementation using the unimodal_function()
+def ternary_search(func, left, right, absolute_precision=1e-7):
+    while right - left > absolute_precision:
         mid1 = left + (right - left) / 3
         mid2 = right - (right - left) / 3
-        if f(mid1) < f(mid2):
-            right = mid2
-        else:
+
+        # Compare function values at mid1 and mid2
+        if func(mid1) < func(mid2):
             left = mid1
-    return (left + right) / 2
-
-# Binary Search to find the minimum of a unimodal function
-def binary_search_minimize(f, left, right, epsilon=1e-5):
-    while right - left > epsilon:
-        mid = (left + right) / 2
-        if f(mid - epsilon) < f(mid + epsilon):
-            right = mid
         else:
-            left = mid
+            right = mid2
+
     return (left + right) / 2
 
-# Compare performance for a range of sizes
-def compare_search_algorithms():
-    epsilon = 1e-7  # Precision level
-    sizes = np.arange(10, 10000000, 10)  # Search ranges from 10 to 1000
-    ternary_times = []
-    binary_times = []
+# Binary search implementation using unimodal_function()
+def binary_search_unimodal(func, left, right, absolute_precision=1e-7):
+    while right - left > absolute_precision:
+        mid = (left + right) / 2
 
-    for size in sizes:
-        left, right = 0, size  # Define the search range
+        # Compare function values at mid and mid + small step
+        if func(mid) < func(mid + absolute_precision):
+            left = mid 
+        else:
+            right = mid  
 
-        # Measure ternary search time
-        start_time = time.time()
-        ternary_search_minimize(unimodal_function, left, right, epsilon)
-        ternary_times.append((time.time() - start_time) * 1_000_000)  # Convert to microseconds
+    return (left + right) / 2
 
-        # Measure binary search time
-        start_time = time.time()
-        binary_search_minimize(unimodal_function, left, right, epsilon)
-        binary_times.append((time.time() - start_time) * 1_000_000)  # Convert to microseconds
+# Brute Force
+def brute_force_search(func, left, right, precision=1e-7):
+    step = precision
+    max_value = -math.inf
+    max_point = None
 
-    return sizes, ternary_times, binary_times
+    x = left
+    while x <= right:
+        f_value = func(x)
+        if f_value > max_value:
+            max_value = f_value
+            max_point = x
+        x += step
 
-# Run the comparison and generate a graph
-sizes, ternary_times, binary_times = compare_search_algorithms()
+    return max_point
 
-# Plot the results
-plt.figure(figsize=(10, 6))
-plt.plot(sizes, ternary_times, label='Ternary Search', color='b', marker='o')
-plt.plot(sizes, binary_times, label='Binary Search', color='r', marker='x')
-plt.xlabel('Search Range Size', fontsize=14)
-plt.ylabel('Time (Microseconds)', fontsize=14)
-plt.title('Comparison of Ternary Search and Binary Search for Function Minimization', fontsize=16)
-plt.legend()
-plt.grid(True)
-plt.savefig('./unimodal')
+# Comparison
+def compare_methods():
+    # range for search to be conducted
+    left, right = 0, 6
+
+    # Ternary Search
+    start_time = time.time()
+    ternary_result = ternary_search(unimodal_function, left, right)
+    ternary_time = time.time() - start_time
+
+    # Binary Search
+    start_time = time.time()
+    binary_result = binary_search_unimodal(unimodal_function, left, right)
+    binary_time = time.time() - start_time
+
+    # Brute Force
+    start_time = time.time()
+    brute_result = brute_force_search(unimodal_function, left, right)
+    brute_time = time.time() - start_time
+
+
+    print("Ternary Search:")
+    print(f"Maximum at x ≈ {ternary_result:.7f}, f(x) ≈ {unimodal_function(ternary_result):.7f}")
+    print(f"Execution Time: {ternary_time:.7e} seconds\n")
+
+    print("Binary Search:")
+    print(f"Maximum at x ≈ {binary_result:.7f}, f(x) ≈ {unimodal_function(binary_result):.7f}")
+    print(f"Execution Time: {binary_time:.7e} seconds\n")
+
+    print("Brute Force:")
+    print(f"Maximum at x ≈ {brute_result:.7f}, f(x) ≈ {unimodal_function(brute_result):.7f}")
+    print(f"Execution Time: {brute_time:.7e} seconds\n")
+
+compare_methods()

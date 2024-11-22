@@ -1,34 +1,34 @@
-# It returns location of x in given array arr
 def binarySearch(arr, x):
+    # set the pointers for the beginning and ending of the array
     low = 0
     high = len(arr) - 1
-    while low <= high:
 
+    # iterative method 
+    while low <= high:
+        
+        # calculate the midpoint
         mid = low + (high - low) // 2
 
-        # Check if x is present at mid
+        # Check if target is present at mid
         if arr[mid] == x:
             return mid
 
-        # If x is greater, ignore left half
+        # If target value is greater, ignore left half
         elif arr[mid] < x:
             low = mid + 1
 
-        # If x is smaller, ignore right half
+        # If target value is smaller, ignore right half
         else:
             high = mid - 1
 
-    # If we reach here, then the element
-    # was not present
+    # not present
     return -1
 
 
-# Driver Code
 if __name__ == '__main__':
     arr = [2, 3, 4, 10, 40]
     x = 3
 
-    # Function call
     result = binarySearch(arr, x)
     if result != -1:
         print("Element is present at index", result)

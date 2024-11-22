@@ -1,5 +1,6 @@
 from binarySearch import binarySearch
 from ternarySearch import ternarySearch
+from linearSearch import linearSearch
 import matplotlib.pyplot as plt
 import timeit
 import random
@@ -11,21 +12,30 @@ def generate_sorted_list(size):
 
 def test_search_algorithm(search_func, array, target):
     """Measure the execution time of a search function."""
+
+    # track time to complete
     start_time = timeit.default_timer()
     result = search_func(array, target)
     end_time = timeit.default_timer()
-    elapsed_time = (end_time - start_time) * 1_000_000
+
+    # mutiply by 1,000 for milliseconds
+    elapsed_time = (end_time - start_time) * 1_000
+
     return elapsed_time, result
 
 def present_results(results, sizes):
     """Visualize the performance of search algorithms."""
+
+    # iterate throughe every algorithm
     for algo, scenario_data in results.items():
+        # iterate through all data under the present scenario
         for scenario, times in scenario_data.items():
             if scenario == "present":
                 plt.plot(sizes, times, label=f"{algo} ({scenario})")
 
+    # output graph of data
     plt.xlabel("Input Size")
-    plt.ylabel("Execution Time (microSec)")
+    plt.ylabel("Execution Time (ms)")
     plt.title("Performance Comparison of Search Algorithms")
     plt.legend()
     plt.grid(True)
@@ -36,13 +46,17 @@ def present_results(results, sizes):
 def not_present_results(results, sizes):
     """Visualize the performance of search algorithms."""
     plt.figure()
+
+    # iterate through each search algorithm
     for algo, scenario_data in results.items():
+        # iterate through all data under specific scenario "not_present"
         for scenario, times in scenario_data.items():
             if scenario == "not_present":
                 plt.plot(sizes, times, label=f"{algo} ({scenario})")
 
+    # output graph 
     plt.xlabel("Input Size")
-    plt.ylabel("Execution Time (microSec)")
+    plt.ylabel("Execution Time (ms)")
     plt.title("Performance Comparison of Search Algorithms")
     plt.legend()
     plt.grid(True)
@@ -56,9 +70,8 @@ def main():
     sizes = [10, 100, 1000, 10000, 100000]  # Different input sizes
     scenarios = ["present", "not_present"]  # Whether the target is present or not
 
-    # Results dictionary
     results = {algo: {scenario: [] for scenario in scenarios} 
-               for algo in ["Ternary Search", "Binary Search"]}
+               for algo in ["Ternary Search", "Binary Search", "Linear Search"]}
 
     for size in sizes:
         array = generate_sorted_list(size)
@@ -75,9 +88,9 @@ def main():
             time_taken, _ = test_search_algorithm(binarySearch, array, target)
             results["Binary Search"][scenario].append(time_taken)
             
-            # # Test linear search
-            # time_taken, _ = test_search_algorithm(linear_search, array, target)
-            # results["Linear Search"][scenario].append(time_taken)
+            # Test linear search
+            time_taken, _ = test_search_algorithm(linearSearch, array, target)
+            results["Linear Search"][scenario].append(time_taken)
 
     # Print results
     for algo, scenario_data in results.items():
@@ -85,10 +98,11 @@ def main():
         for scenario, times in scenario_data.items():
             print(f"  {scenario.capitalize()}:")
             for size, time in zip(sizes, times):
-                print(f"    Size {size}: {time:.6f} micro Seconds")
+                print(f"    Size {size}: {time:.6f} ms")
 
     print(results)
     
+    # output graphs
     present_results(results, sizes)
     not_present_results(results, sizes)
 
